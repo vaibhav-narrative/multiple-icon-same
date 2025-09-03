@@ -90,6 +90,18 @@
             transform: scale(1.1);
         }
 
+        .icon-item.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .icon-item.active .icon {
+            fill: #ffd700;
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+        }
+
         .icon-label {
             color: white;
             font-size: 14px;
@@ -283,30 +295,69 @@
         const modal = document.getElementById('modal');
         const closeBtn = document.querySelector('.close');
         const iconItems = document.querySelectorAll('[data-testid="icon-item"]');
+        let activeIcon = null;
+        let modalTimeout = null;
+
+        // Function to open modal with delay
+        function openModalWithDelay(clickedIcon) {
+            // Clear any existing timeout
+            if (modalTimeout) {
+                clearTimeout(modalTimeout);
+            }
+
+            // Remove active class from any previously active icon
+            if (activeIcon) {
+                activeIcon.classList.remove('active');
+            }
+
+            // Set the clicked icon as active
+            activeIcon = clickedIcon;
+            activeIcon.classList.add('active');
+
+            // Open modal after 5 seconds
+            modalTimeout = setTimeout(() => {
+                modal.classList.add('show');
+            }, 5000);
+        }
+
+        // Function to close modal and remove highlight
+        function closeModal() {
+            modal.classList.remove('show');
+
+            // Clear timeout if modal is closed before 5 seconds
+            if (modalTimeout) {
+                clearTimeout(modalTimeout);
+                modalTimeout = null;
+            }
+
+            // Remove active class from the icon
+            if (activeIcon) {
+                activeIcon.classList.remove('active');
+                activeIcon = null;
+            }
+        }
 
         // Add click event to all icon items
         iconItems.forEach(item => {
             item.addEventListener('click', () => {
-                modal.classList.add('show');
+                openModalWithDelay(item);
             });
         });
 
         // Close modal when clicking the X
-        closeBtn.addEventListener('click', () => {
-            modal.classList.remove('show');
-        });
+        closeBtn.addEventListener('click', closeModal);
 
         // Close modal when clicking outside the content
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
-                modal.classList.remove('show');
+                closeModal();
             }
         });
 
         // Close modal with Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && modal.classList.contains('show')) {
-                modal.classList.remove('show');
+                closeModal();
             }
         });
     </script>
